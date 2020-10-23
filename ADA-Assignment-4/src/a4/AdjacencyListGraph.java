@@ -229,7 +229,7 @@ public class AdjacencyListGraph<E> implements GraphADT<E>
    }
 
    // inner class that implements a vertex for the AdjacencyListGraph
-   protected class AdjacencyListEdge implements Edge<E>
+   protected class AdjacencyListEdge<E> implements Edge<E>
    {
       // for a directed graph edge is from vertex1 to vertex2
       private Vertex<E> vertex1, vertex2;
