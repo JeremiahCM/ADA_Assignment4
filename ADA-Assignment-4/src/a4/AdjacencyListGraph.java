@@ -7,6 +7,7 @@ package a4;
    @author Andrew Ensor
    @version 1.1 allows directed as well as undirected graphs
 */
+import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,6 +17,7 @@ import java.util.Set;
 
 public class AdjacencyListGraph<E> implements GraphADT<E>
 {
+   DecimalFormat df = new DecimalFormat("#.####"); //for rounding edge weights
    private GraphType type;
    protected Set<Vertex<E>> vertices;
    protected Set<Edge<E>> edges;
@@ -59,13 +61,15 @@ public class AdjacencyListGraph<E> implements GraphADT<E>
    }
 
    // returns a view of the vertices as a Set
+
    public Set<Vertex<E>> vertexSet()
    {  return Collections.unmodifiableSet(vertices);
    }
    
    // returns a view of the edges as a Set
    public Set<Edge<E>> edgeSet()
-   {  return Collections.unmodifiableSet(edges);
+   {  
+       return Collections.unmodifiableSet(edges);
    }
    
    // generic method which adds a copy of the graph (that has elements
@@ -91,7 +95,7 @@ public class AdjacencyListGraph<E> implements GraphADT<E>
    }
    
    // adds and returns a new isolated vertex to the graph
-   public Vertex<E> addVertex(E element)
+   public AdjacencyListVertex addVertex(E element)
    {  AdjacencyListVertex vertex = new AdjacencyListVertex(element);
       addVertex(vertex);
       return vertex;
@@ -103,10 +107,7 @@ public class AdjacencyListGraph<E> implements GraphADT<E>
       adjacencyLists.put(vertex, new HashSet<Edge<E>>());
    }
    
-   // adds and returns a new undirected edge between two vertices
-   // Note: if the end vertices are not already in the graph
-   // then copies of them are added as well
-   public Edge<E> addEdge(Vertex<E> vertex0, Vertex<E> vertex1)
+    public Edge<E> addEdge(Vertex<E> vertex0, Vertex<E> vertex1)
    {  // first add the end vertices if not already in graph
       if (!containsVertex(vertex0))
          addVertex(vertex0);
@@ -121,6 +122,26 @@ public class AdjacencyListGraph<E> implements GraphADT<E>
          adjacencyLists.get(vertex1).add(edge);
       return edge;
    }
+   // adds and returns a new undirected edge between two vertices
+   // Note: if the end vertices are not already in the graph
+   // then copies of them are added as well
+   public Edge<E> addEdge(Vertex<E> vertex0, Vertex<E> vertex1, double weight)
+   {  // first add the end vertices if not already in graph
+      if (!containsVertex(vertex0))
+         addVertex(vertex0);
+      if (!containsVertex(vertex1))
+         addVertex(vertex1);
+      // create the new edge
+      Edge<E> edge = new AdjacencyListEdge(vertex0, vertex1, weight);
+      edges.add(edge);
+      // update the adjacency list for one or both end vertices
+      adjacencyLists.get(vertex0).add(edge);
+      if (type == GraphType.UNDIRECTED) // add the reverse edge 
+         adjacencyLists.get(vertex1).add(edge);
+      return edge;
+   }
+   
+
    
    // removes the specified vertex from the graph
    public <F> boolean removeVertex(Vertex<F> vertex)
@@ -182,11 +203,17 @@ public class AdjacencyListGraph<E> implements GraphADT<E>
    protected class AdjacencyListVertex implements Vertex<E>
    {
       private E element;
+      public double distance;
+      public AdjacencyListEdge leastEdge; //for bellman ford
       
       public AdjacencyListVertex(E element)
       {  this.element = element;
       }
       
+      public void setDistance(double distance)
+      {
+          this.distance = distance;
+      }
       // returns the element held in the vertex
       public E getUserObject()
       {  return element;
@@ -233,10 +260,24 @@ public class AdjacencyListGraph<E> implements GraphADT<E>
    {
       // for a directed graph edge is from vertex1 to vertex2
       private Vertex<E> vertex1, vertex2;
+      private double weight = 0;
+      
       
       public AdjacencyListEdge(Vertex<E> vertex1, Vertex<E> vertex2)
       {  this.vertex1 = vertex1;
          this.vertex2 = vertex2;
+      }
+      
+      //for directed weights between two currencies
+     public AdjacencyListEdge(Vertex<E> vertex1, Vertex<E> vertex2, double weight)
+      {  this.vertex1 = vertex1;
+         this.vertex2 = vertex2;
+         this.weight = weight;
+      }
+      
+      public void setWeight(double weight)
+      {
+          this.weight = weight;
       }
       
       // returns the two end vertices for this edge as an array
@@ -247,6 +288,11 @@ public class AdjacencyListGraph<E> implements GraphADT<E>
          return vertices;
       }
       
+      
+      public double getWeight()
+      {
+          return weight;
+      }
       // returns the end vertex opposite the specified vertex
       public Vertex<E> oppositeVertex(Vertex<E> vertex)
       {  if (vertex1.equals(vertex))
@@ -256,7 +302,7 @@ public class AdjacencyListGraph<E> implements GraphADT<E>
       }
       
       public String toString()
-      {  return "(" + vertex1 + "-" + vertex2 + ")"; 
+      {  return "(" + vertex1 + "-" + vertex2 + ") = "+ df.format(weight); 
       }
    }
    
@@ -264,10 +310,11 @@ public class AdjacencyListGraph<E> implements GraphADT<E>
     {
         AdjacencyListGraph<String> graph = new AdjacencyListGraph<>();
         
-        Vertex v1 = new Vertex("Bob");
-        graph.addVertex("bob");
-        graph.addVertex("cat");
-        graph.addEdge("bob", "cat");
-        graph.
+        Vertex<String> v1 = graph.addVertex("Bob");
+        Vertex<String> v2 = graph.addVertex("Cat");
+        graph.addEdge(v1, v2, 45);
+        System.out.println(graph.vertexSet());
+        System.out.println("----------------------------");
+       
     }
 }
