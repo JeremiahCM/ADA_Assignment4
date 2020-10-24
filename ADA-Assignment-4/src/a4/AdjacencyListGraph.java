@@ -203,13 +203,17 @@ public class AdjacencyListGraph<E> implements GraphADT<E>
    protected class AdjacencyListVertex implements Vertex<E>
    {
       private E element;
-      public double distance;
+      private double distance;
       public AdjacencyListEdge leastEdge; //for bellman ford
       
       public AdjacencyListVertex(E element)
       {  this.element = element;
       }
       
+      public double getDistance()
+      {
+          return distance; 
+      }
       public void setDistance(double distance)
       {
           this.distance = distance;

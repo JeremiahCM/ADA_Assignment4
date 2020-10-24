@@ -6,6 +6,7 @@
 package a4;
 
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
@@ -17,6 +18,7 @@ import java.util.Set;
  * 
  */
 public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
+    DecimalFormat df = new DecimalFormat("#.####");
     private static final int NZD = 0;    
     private static final int AUD = 1; //Australian Dollar 
     private static final int MXN = 2; //Mexican Peso
@@ -89,9 +91,9 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
             
         }
         
-        currencyVertex.get(curr1).distance = 0; 
+        currencyVertex.get(curr1).setDistance(0);
       
-        Set<Edge<String>> edge = this.edgeSet();
+        
         for(int i = 0; i < currencies.size()-1; i++)
         {
             for(Edge e : this.edgeSet())
@@ -102,38 +104,42 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
                 AdjacencyListVertex u = (AdjacencyListVertex)vertices[0]; //start of edge
                 AdjacencyListVertex v = (AdjacencyListVertex)vertices[1]; // end of edge
                 
-               // System.out.println("INDEX "+i+"  -------------------------------------");
                
-                if(!Double.isInfinite(u.distance) && !u.getUserObject().equalsIgnoreCase(currencies.get(curr2)) )
-                {   
-                    if(((u.distance) + edgy.getWeight()) < v.distance)
-                    { //System.out.println("NOT INFINITE "+edgy);
-                        v.distance = (u.distance+edgy.getWeight());
+                if(!Double.isInfinite(u.getDistance()) && !u.getUserObject().equalsIgnoreCase(currencies.get(curr2)) && !v.getUserObject().equalsIgnoreCase(currencies.get(curr1)))
+                {   System.out.println("distnace is "+df.format(u.getDistance()));
+                    System.out.println("trtrtr is "+df.format(v.getDistance()));
+                    System.out.println(u.getDistance()+ edgy.getWeight());
+                    
+                    if(u.getDistance() + edgy.getWeight() < v.getDistance())
+                    {  System.out.println("INFINITE ----- "+i+"--> "+edgy);
+                        v.setDistance(u.getDistance()+edgy.getWeight());
                         v.leastEdge = edgy;
+                        
+                        System.out.println("V's new distance is "+df.format(v.getDistance()));                     
                     }
                }
             }
         }
-         System.out.println(currencyVertex.get(NZD).leastEdge);
-       System.out.println(currencyVertex.get(TOP).leastEdge);
         
- 
+       //TESTERS:
+        System.out.println(currencyVertex.get(NZD).leastEdge);
+        System.out.println(currencyVertex.get(AUD).leastEdge);
+        
         boolean matched = true;
         
-        //check if graph has negative weight closed path
-        for(Edge e : this.edgeSet())
-        {
-            AdjacencyListEdge edgy = (AdjacencyListEdge)e;
-            Vertex[] vertices = e.endVertices();
-            AdjacencyListVertex u = (AdjacencyListVertex)vertices[0]; //start of edge
-            AdjacencyListVertex v = (AdjacencyListVertex)vertices[1]; // end of edge
-           if(((u.distance) + edgy.getWeight()) < v.distance)               
-           {
-                matched = false;          
-           }
-        }
-       
-         
+//        //check if graph has negative weight closed path
+//        for(Edge e : this.edgeSet())
+//        {
+//            AdjacencyListEdge edgy = (AdjacencyListEdge)e;
+//            Vertex[] vertices = e.endVertices();
+//            AdjacencyListVertex u = (AdjacencyListVertex)vertices[0]; //start of edge
+//            AdjacencyListVertex v = (AdjacencyListVertex)vertices[1]; // end of edge
+//           if(((u.distance) + edgy.getWeight()) < v.distance)               
+//           {
+//                matched = false;          
+//           }
+//        }
+//               
          
         return matched;
         
@@ -167,6 +173,7 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
         rates[NZD][TOP] = 1.48820;
         
      //   rates[AUD][AUD] = 1;
+        rates[AUD][NZD] = 1.06690;
         rates[AUD][USD] = 0.70962;
         rates[AUD][CAD] = 0.93076;
         rates[AUD][PHP] = 34.4024;
@@ -224,7 +231,7 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
 //       System.out.println(rates.length);
         
         BestConversionFinder bcf = new BestConversionFinder(rates, currencies);
-        System.out.println(bcf.calculateBestRate(TOP, NZD));
+        System.out.println(bcf.calculateBestRate(AUD, NZD));
         
         System.out.println(bcf);
        
