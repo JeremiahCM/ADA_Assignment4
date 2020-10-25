@@ -107,6 +107,7 @@ public class AdjacencyListGraph<E> implements GraphADT<E>
       adjacencyLists.put(vertex, new HashSet<Edge<E>>());
    }
    
+   
     public Edge<E> addEdge(Vertex<E> vertex0, Vertex<E> vertex1)
    {  // first add the end vertices if not already in graph
       if (!containsVertex(vertex0))
@@ -205,9 +206,22 @@ public class AdjacencyListGraph<E> implements GraphADT<E>
       private E element;
       private double distance;
       public AdjacencyListEdge leastEdge; //for bellman ford
+      private int i; //represents index in array - for grabbing least edges in Bellman-Ford
       
       public AdjacencyListVertex(E element)
       {  this.element = element;
+      }
+      
+      
+
+      public int getIndex()
+      {
+          return i;
+      }
+      
+      public void setIndex(int i) 
+      {
+          this.i = i;
       }
       
       public double getDistance()

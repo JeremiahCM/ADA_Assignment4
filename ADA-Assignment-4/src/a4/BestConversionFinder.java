@@ -30,14 +30,15 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
     private static final int JPY = 8; //Japanese Yen
     private static final int TOP = 9; //Tonga Pa'anga
 
-
     private double[][] rates;
-    private ArrayList<String> currencies; //for creating each Vertex
+    private HashMap<Integer,String> currencies; //for creating each Vertex (linked to the index of the initial n * n table)
+    ArrayList<AdjacencyListEdge> path1 = new ArrayList<>();// path of best conversion rate for currency 1
+    ArrayList<AdjacencyListEdge> path2 = new ArrayList<>(); // path of best conversion rate for currency 2
     private HashMap<Integer, AdjacencyListVertex> currencyVertex; //to access each vertex using the enum values for the currencies defined above.
     
    
     //TODO: accept n x n table of rates
-    public BestConversionFinder(double[][] rates, ArrayList<String> currencies)
+    public BestConversionFinder(double[][] rates, HashMap<Integer,String> currencies)
     {
         super(GraphType.DIRECTED);
         this.rates = rates;
@@ -52,6 +53,7 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
         for(int i = 0; i < currencies.size(); i++)
         {
             AdjacencyListVertex v =  super.addVertex(currencies.get(i));   
+            v.setIndex(i);
             currencyVertex.put(i, v);
         }
         
@@ -72,7 +74,23 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
         
     }
     
+    public void findBestConversion(int curr1, int curr2)
+    {  
+        
+        if(calculateBestRate(curr1, curr2))
+        {
+            calculateBestRate(curr2, curr1);
+            printPaths(curr1, curr2);
+        }
+        
+        else
+        {
+            System.out.println("Negative Closed Path Found! Cannot find Best Conversion Rate");
+        }
+    
  
+    }
+    
     //TODO:BELLMAN FORD ALGORITHM - Calculate's best rates between two currencies both ways.
     public boolean calculateBestRate(int curr1, int curr2)
     {
@@ -105,137 +123,187 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
                 AdjacencyListVertex v = (AdjacencyListVertex)vertices[1]; // end of edge
                 
                
-                if(!Double.isInfinite(u.getDistance()) && !u.getUserObject().equalsIgnoreCase(currencies.get(curr2)) && !v.getUserObject().equalsIgnoreCase(currencies.get(curr1)))
-                {   System.out.println("distnace is "+df.format(u.getDistance()));
-                    System.out.println("trtrtr is "+df.format(v.getDistance()));
-                    System.out.println(u.getDistance()+ edgy.getWeight());
+                if(!Double.isInfinite(u.getDistance()))
+                {  
                     
                     if(u.getDistance() + edgy.getWeight() < v.getDistance())
-                    {  System.out.println("INFINITE ----- "+i+"--> "+edgy);
+                    { 
                         v.setDistance(u.getDistance()+edgy.getWeight());
                         v.leastEdge = edgy;
-                        
-                        System.out.println("V's new distance is "+df.format(v.getDistance()));                     
+                                
                     }
                }
             }
         }
         
-       //TESTERS:
-        System.out.println(currencyVertex.get(NZD).leastEdge);
-        System.out.println(currencyVertex.get(AUD).leastEdge);
         
-        boolean matched = true;
+        boolean noClosedPath = true; //flag to indicate if graph has negative closed path
         
-//        //check if graph has negative weight closed path
-//        for(Edge e : this.edgeSet())
-//        {
-//            AdjacencyListEdge edgy = (AdjacencyListEdge)e;
-//            Vertex[] vertices = e.endVertices();
-//            AdjacencyListVertex u = (AdjacencyListVertex)vertices[0]; //start of edge
-//            AdjacencyListVertex v = (AdjacencyListVertex)vertices[1]; // end of edge
-//           if(((u.distance) + edgy.getWeight()) < v.distance)               
-//           {
-//                matched = false;          
-//           }
-//        }
-//               
-         
-        return matched;
+        //check if graph has negative weight closed path
+        for(Edge e : this.edgeSet())
+        {
+            AdjacencyListEdge edgy = (AdjacencyListEdge)e;
+            Vertex[] vertices = e.endVertices();
+            AdjacencyListVertex u = (AdjacencyListVertex)vertices[0]; //start of edge
+            AdjacencyListVertex v = (AdjacencyListVertex)vertices[1]; // end of edge
+           if(((u.getDistance()) + edgy.getWeight()) < v.getDistance())               
+           {
+                noClosedPath = false;          
+           }
+        }
+        
+        
+        if(noClosedPath) //get the shortest path for the currencies.
+        {   
+            if(path1.isEmpty())
+            {
+                path1 = getLeastPaths(curr2);
+            }
+            else
+            {
+                path2 = getLeastPaths(curr2);
+            }
+        }
+                        
+        return noClosedPath;
         
     }
     
+    private ArrayList<AdjacencyListEdge> getLeastPaths(int startIndex)
+    {
+        ArrayList<AdjacencyListEdge> path = new ArrayList<>();
+        int index = startIndex;
+             
+        boolean found = false;
+        while (!found) 
+        {
+            AdjacencyListVertex v = currencyVertex.get(index);
+            if (v.leastEdge == null) 
+            {
+                found = true;
+            } 
+            else 
+            {
+                Vertex[] leastVertices = v.leastEdge.endVertices();
+                path.add(v.leastEdge);
+
+                AdjacencyListVertex nextV = (AdjacencyListVertex) leastVertices[0];
+                index = nextV.getIndex();
+            }
+        }
+            
+        return path;
+    }
+    
+    private void printPaths(int curr1, int curr2)
+    {
+        System.out.println("FROM "+currencyVertex.get(curr1)+" TO "+currencyVertex.get(curr2));
+        for(int i = path1.size()-1; i >= 0; i--)
+        {
+            System.out.print(path1.get(i)+",");
+        }
+        System.out.println("\b");
+        
+        System.out.println("----------------------------------------------------------------");
+        System.out.println("FROM "+currencyVertex.get(curr2)+" TO "+currencyVertex.get(curr1));
+        for(int i = path2.size()-1; i >= 0; i--)
+        {
+            System.out.print(path2.get(i)+",");
+        }
+        System.out.println("\b\n");
+    }
 
     public static void main(String[] args) 
     {
-        //for printing outputs of currencies using their associated index.
-        ArrayList<String> currencies = new ArrayList<>();
-        currencies.add("NZD");
-        currencies.add("AUD");
-        currencies.add("MXN");
-        currencies.add("USD");
-        currencies.add("CAD");
-        currencies.add("PHP");
-        currencies.add("GBP");
-        currencies.add("COP");
-        currencies.add("JPY");
-        currencies.add("TOP");
-        
-        
-        double[][] rates = new double[10][10];
+              
+ //       double[][] rates = new double[10][10];
         //assign rates here
-     //   rates[NZD][NZD] = 1;
-        rates[NZD][AUD] = 0.93481;
-        rates[NZD][USD] = 0.66345;
-        rates[NZD][PHP] = 32.1637;
-        rates[NZD][GBP] = 0.54287;
-        rates[NZD][JPY] = 69.57;
-        rates[NZD][TOP] = 1.48820;
-        
-     //   rates[AUD][AUD] = 1;
-        rates[AUD][NZD] = 1.06690;
-        rates[AUD][USD] = 0.70962;
-        rates[AUD][CAD] = 0.93076;
-        rates[AUD][PHP] = 34.4024;
-        rates[AUD][GBP] = 0.54287;
-        rates[AUD][JPY] = 74.42;
-        
-      //  rates[MXN][MXN] = 1;
-        rates[MXN][USD] = 0.04746;
-        rates[MXN][PHP] = 2.30061;
-        rates[MXN][COP] = 179.687;
-        
-       // rates[USD][USD] = 1;
-        rates[USD][NZD] = 1.50691;
-        rates[USD][AUD] = 1.40890;
-        rates[USD][MXN] = 21.0655;
-        rates[USD][CAD] = 1.31162;
-        rates[USD][PHP] = 48.4797;
-        rates[USD][GBP] = 0.76501;
-        rates[USD][COP] = 3786.46;
-        rates[USD][JPY] = 104.86;
-      
-       // rates[CAD][CAD] = 1;
-        rates[CAD][NZD] = 1.14873;
-        rates[CAD][AUD] = 1.70403;
-        rates[CAD][GBP] = 0.58317;
- 
-       // rates[PHP][PHP] = 1;
-        rates[PHP][NZD] = 0.03102;
-        rates[PHP][AUD] = 0.02900;
-        rates[PHP][USD] = 0.02058;
-        rates[PHP][JPY] = 2.16;
-        
-       // rates[GBP][GBP] = 1;
-        rates[GBP][NZD] = 1.96951;
-        rates[GBP][AUD] = 1.30699;
-        rates[GBP][USD] = 1.30699;
-        rates[GBP][CAD] = 1.71428;
-        
-       // rates[COP][COP] = 1;
-        rates[COP][MXN] = 179.687;
-        rates[COP][USD] = 0.00026;
-       
-       // rates[JPY][JPY] = 1;
-        rates[JPY][NZD] = 0.01437;
-        rates[JPY][AUD] = 0.01343;
-        rates[JPY][USD] = 0.00954;
-        rates[JPY][PHP] = 0.46226;
-        
-       // rates[TOP][TOP] = 1;
-        rates[TOP][NZD] = 0.63111;
-        
+
+//        rates[NZD][AUD] = 0.93481;
+//        rates[NZD][USD] = 0.66345;
+//        rates[NZD][PHP] = 32.1637;
+//        rates[NZD][GBP] = 0.54287;
+//        rates[NZD][JPY] = 69.57;
+//        rates[NZD][TOP] = 1.48820;
+//        
+//
+//        rates[AUD][NZD] = 1.06690;
+//        rates[AUD][USD] = 0.70962;
+//        rates[AUD][CAD] = 0.93076;
+//        rates[AUD][PHP] = 34.4024;
+//        rates[AUD][GBP] = 0.54287;
+//        rates[AUD][JPY] = 74.42;
+//        
+//
+//        rates[MXN][USD] = 0.04746;
+//        rates[MXN][PHP] = 2.30061;
+//        rates[MXN][COP] = 179.687;
+//        
+//
+//        rates[USD][NZD] = 1.50691;
+//        rates[USD][AUD] = 1.40890;
+//        rates[USD][MXN] = 21.0655;
+//        rates[USD][CAD] = 1.31162;
+//        rates[USD][PHP] = 48.4797;
+//        rates[USD][GBP] = 0.76501;
+//        rates[USD][COP] = 3786.46;
+//        rates[USD][JPY] = 104.86;
 //      
-//        System.out.println(rates[TOP][NZD]);
-//        System.out.println(rates[USD][CAD]);
-//       System.out.println(rates.length);
-        
-        BestConversionFinder bcf = new BestConversionFinder(rates, currencies);
-        System.out.println(bcf.calculateBestRate(AUD, NZD));
-        
-        System.out.println(bcf);
-       
+//
+//        rates[CAD][NZD] = 1.14873;
+//        rates[CAD][AUD] = 1.70403;
+//        rates[CAD][GBP] = 0.58317;
+// 
+//
+//        rates[PHP][NZD] = 0.03102;
+//        rates[PHP][AUD] = 0.02900;
+//        rates[PHP][USD] = 0.02058;
+//        rates[PHP][JPY] = 2.16;
+//        
+//    
+//        rates[GBP][NZD] = 1.96951;
+//        rates[GBP][AUD] = 1.30699;
+//        rates[GBP][USD] = 1.30699;
+//        rates[GBP][CAD] = 1.71428;
+//        
+//      
+//        rates[COP][MXN] = 179.687;
+//        rates[COP][USD] = 0.00026;
+//       
+//     
+//        rates[JPY][NZD] = 0.01437;
+//        rates[JPY][AUD] = 0.01343;
+//        rates[JPY][USD] = 0.00954;
+//        rates[JPY][PHP] = 0.46226;
+//        
+//      
+//        rates[TOP][NZD] = 0.63111;
+
     
+       
+        
+        
+        //TEST CASE 2---------------------------------------------------
+        double[][] rates2 = new double[10][10];
+        HashMap<Integer, String> currs = new HashMap<>();
+        currs.put(0, "NZD");
+        currs.put(1, "TOP");
+        currs.put(2, "AUD");
+        
+        rates2[0][1] = 0.93481; // NZD->TOP
+        rates2[0][2] = 0.93481; // NZD->AUD
+        
+        rates2[1][0] = 0.63111;// TOP->NZD
+        rates2[1][2] = 0.58826; //TOP->AUD
+        
+        rates2[2][0] = 1.06690; // AUD->NZD
+        rates2[2][1] = 1.59501; //AUD->TOP
+        
+        BestConversionFinder bcf2 = new BestConversionFinder(rates2, currs);
+        System.out.println(bcf2);
+        bcf2.findBestConversion(1, 2);
+
+
     }
     
 }
