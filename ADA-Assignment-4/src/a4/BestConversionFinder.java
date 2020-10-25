@@ -18,7 +18,7 @@ import java.util.Set;
  * 
  */
 public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
-    DecimalFormat df = new DecimalFormat("#.####");
+    DecimalFormat df = new DecimalFormat("#.######");
     private static final int NZD = 0;    
     private static final int AUD = 1; //Australian Dollar 
     private static final int MXN = 2; //Mexican Peso
@@ -76,7 +76,8 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
     
     public void findBestConversion(int curr1, int curr2)
     {  
-        
+        path1 = new ArrayList<>();
+        path2 = new ArrayList<>();
         if(calculateBestRate(curr1, curr2))
         {
             calculateBestRate(curr2, curr1);
@@ -96,7 +97,7 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
     {
         if(!currencyVertex.containsKey(curr1) || !currencyVertex.containsKey(curr2))
         {
-            throw new NoSuchElementException("Currency doesn't exist!");
+            throw new NoSuchElementException("Currency is not in the graph!");
         }
         
         //10 currencies = 9 iterations
@@ -196,21 +197,35 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
     }
     
     private void printPaths(int curr1, int curr2)
-    {
-        System.out.println("FROM "+currencyVertex.get(curr1)+" TO "+currencyVertex.get(curr2));
+    {   
+        double totalWeight = 0;
+        double originalRate = 0; //original exchange rate of the currencies before it was converted to the log(1/rate)e calculations.
+       
+        System.out.println("FROM "+currencyVertex.get(curr1)+" TO "+currencyVertex.get(curr2) +":");
         for(int i = path1.size()-1; i >= 0; i--)
         {
             System.out.print(path1.get(i)+",");
+            totalWeight += path1.get(i).getWeight();
         }
         System.out.println("\b");
+        originalRate = 1/Math.pow(2,  totalWeight); //convert back to 1/e^rate
+        System.out.print("~ Total Rate is 1 "+currencyVertex.get(curr1)+" to "+df.format(originalRate)+" "+currencyVertex.get(curr2));
+        System.out.print(" (Total Weight: "+df.format(totalWeight)+") \n");
+             
+        totalWeight = 0;
+        System.out.println();        
         
-        System.out.println("----------------------------------------------------------------");
-        System.out.println("FROM "+currencyVertex.get(curr2)+" TO "+currencyVertex.get(curr1));
+        System.out.println("FROM "+currencyVertex.get(curr2)+" TO "+currencyVertex.get(curr1)+":");
         for(int i = path2.size()-1; i >= 0; i--)
         {
             System.out.print(path2.get(i)+",");
+            totalWeight += path2.get(i).getWeight();
         }
-        System.out.println("\b\n");
+        System.out.println("\b");
+        originalRate = 1/Math.pow(2, totalWeight); //convert back to 1/e^rate
+        System.out.print("~ Total Rate is 1 "+currencyVertex.get(curr2)+" to "+df.format(originalRate)+" "+currencyVertex.get(curr1));
+        System.out.print(" (Total Weight: "+df.format(totalWeight)+")");
+        System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     }
 
     public static void main(String[] args) 
@@ -279,31 +294,36 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
 //      
 //        rates[TOP][NZD] = 0.63111;
 
-    
-       
+      
         
         
-        //TEST CASE 2---------------------------------------------------
-        double[][] rates2 = new double[10][10];
+        //TEST CASE 1---------------------------------------------------
+        double[][] rates = new double[10][10];
         HashMap<Integer, String> currs = new HashMap<>();
         currs.put(0, "NZD");
         currs.put(1, "TOP");
         currs.put(2, "AUD");
+        currs.put(3, "PHP");
         
-        rates2[0][1] = 0.93481; // NZD->TOP
-        rates2[0][2] = 0.93481; // NZD->AUD
+        rates[0][1] = 0.93481; // NZD->TOP
+        rates[0][2] = 0.93481; // NZD->AUD
+        rates[0][3] = 32.2959; //NZD->PHP
         
-        rates2[1][0] = 0.63111;// TOP->NZD
-        rates2[1][2] = 0.58826; //TOP->AUD
+        rates[1][0] = 0.63111;// TOP->NZD
+        rates[1][2] = 0.58826; //TOP->AUD
         
-        rates2[2][0] = 1.06690; // AUD->NZD
-        rates2[2][1] = 1.59501; //AUD->TOP
+        rates[2][0] = 1.06690; //AUD->NZD
+        rates[2][1] = 1.59501; //AUD->TOP
         
-        BestConversionFinder bcf2 = new BestConversionFinder(rates2, currs);
+        rates[3][0] = 0.03079; //PHP->NZD
+        
+        
+        BestConversionFinder bcf2 = new BestConversionFinder(rates, currs);
         System.out.println(bcf2);
         bcf2.findBestConversion(1, 2);
-
-
-    }
+        //0.76129  better directly exchanging (TOP-AUD), as it gives 0.76547 weight (rate is 1 TOP to 0.58826 AUD)  
+                                            
+        bcf2.findBestConversion(3, 1);
+    }   //better route than going [PHP-NZD, NZD-TOP], as it gives 5.11864 as the weight (which gives a rate of 1 PHP to 0.0287 TOP). 
     
 }

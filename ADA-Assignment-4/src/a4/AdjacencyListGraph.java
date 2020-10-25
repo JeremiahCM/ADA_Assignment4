@@ -17,7 +17,7 @@ import java.util.Set;
 
 public class AdjacencyListGraph<E> implements GraphADT<E>
 {
-   DecimalFormat df = new DecimalFormat("#.####"); //for rounding edge weights
+   DecimalFormat df = new DecimalFormat("#.#####"); //for rounding edge weights
    private GraphType type;
    protected Set<Vertex<E>> vertices;
    protected Set<Edge<E>> edges;
@@ -320,7 +320,8 @@ public class AdjacencyListGraph<E> implements GraphADT<E>
       }
       
       public String toString()
-      {  return "(" + vertex1 + "-" + vertex2 + ") = "+ df.format(weight); 
+      {   //double uncalculatedRate = 1/Math.pow(2, weight);
+          return "(" + vertex1 + "-" + vertex2 + ") = "+ df.format(weight); 
       }
    }
    
