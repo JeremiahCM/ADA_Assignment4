@@ -320,9 +320,11 @@ public class AdjacencyListGraph<E> implements GraphADT<E>
       }
       
       public String toString()
-      {   //double uncalculatedRate = 1/Math.pow(2, weight);
-          return "(" + vertex1 + "-" + vertex2 + ") = "+ df.format(weight); 
+      {   double rate = 1/Math.pow(2, weight);
+          return "(" + vertex1 + "-" + vertex2 + ") = "+ df.format(weight) +" (rate:"+df.format(rate)+")";  //(brackets contains the original exchange rate)
       }
+      
+
    }
    
     public static void main(String[] args) 

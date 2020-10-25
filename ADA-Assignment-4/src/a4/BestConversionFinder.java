@@ -209,13 +209,12 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
         }
         System.out.println("\b");
         originalRate = 1/Math.pow(2,  totalWeight); //convert back to 1/e^rate
-        System.out.print("~ Total Rate is 1 "+currencyVertex.get(curr1)+" to "+df.format(originalRate)+" "+currencyVertex.get(curr2));
+        System.out.print("\n~~Total Rate is 1 "+currencyVertex.get(curr1)+" to "+df.format(originalRate)+" "+currencyVertex.get(curr2));
         System.out.print(" (Total Weight: "+df.format(totalWeight)+") \n");
              
-        totalWeight = 0;
-        System.out.println();        
+        totalWeight = 0;       
         
-        System.out.println("FROM "+currencyVertex.get(curr2)+" TO "+currencyVertex.get(curr1)+":");
+        System.out.println("\nFROM "+currencyVertex.get(curr2)+" TO "+currencyVertex.get(curr1)+":");
         for(int i = path2.size()-1; i >= 0; i--)
         {
             System.out.print(path2.get(i)+",");
@@ -223,7 +222,7 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
         }
         System.out.println("\b");
         originalRate = 1/Math.pow(2, totalWeight); //convert back to 1/e^rate
-        System.out.print("~ Total Rate is 1 "+currencyVertex.get(curr2)+" to "+df.format(originalRate)+" "+currencyVertex.get(curr1));
+        System.out.print("\n~~Total Rate is 1 "+currencyVertex.get(curr2)+" to "+df.format(originalRate)+" "+currencyVertex.get(curr1));
         System.out.print(" (Total Weight: "+df.format(totalWeight)+")");
         System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     }
