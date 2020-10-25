@@ -78,9 +78,9 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
     {  
         path1 = new ArrayList<>();
         path2 = new ArrayList<>();
-        if(calculateBestRate(curr1, curr2))
+        if(bellmanFordPath(curr1, curr2))
         {
-            calculateBestRate(curr2, curr1);
+            bellmanFordPath(curr2, curr1);
             printPaths(curr1, curr2);
         }
         
@@ -92,8 +92,8 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
  
     }
     
-    //TODO:BELLMAN FORD ALGORITHM - Calculate's best rates between two currencies both ways.
-    public boolean calculateBestRate(int curr1, int curr2)
+    //Calculate's best rates between two currencies both ways by finding their shortest paths to and from each other.
+    public boolean bellmanFordPath(int curr1, int curr2)
     {
         if(!currencyVertex.containsKey(curr1) || !currencyVertex.containsKey(curr2))
         {
@@ -147,6 +147,7 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
             Vertex[] vertices = e.endVertices();
             AdjacencyListVertex u = (AdjacencyListVertex)vertices[0]; //start of edge
             AdjacencyListVertex v = (AdjacencyListVertex)vertices[1]; // end of edge
+            
            if(((u.getDistance()) + edgy.getWeight()) < v.getDistance())               
            {
                 noClosedPath = false;          
@@ -304,7 +305,7 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
         currs.put(2, "AUD");
         currs.put(3, "PHP");
         
-        rates[0][1] = 0.93481; // NZD->TOP
+        rates[0][1] = 1.49356; // NZD->TOP
         rates[0][2] = 0.93481; // NZD->AUD
         rates[0][3] = 32.2959; //NZD->PHP
         
@@ -312,17 +313,52 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
         rates[1][2] = 0.58826; //TOP->AUD
         
         rates[2][0] = 1.06690; //AUD->NZD
-        rates[2][1] = 1.59501; //AUD->TOP
+        rates[2][1] = 1.59501; //AUD->TOP 
         
         rates[3][0] = 0.03079; //PHP->NZD
         
         
-        BestConversionFinder bcf2 = new BestConversionFinder(rates, currs);
-        System.out.println(bcf2);
-        bcf2.findBestConversion(1, 2);
-        //0.76129  better directly exchanging (TOP-AUD), as it gives 0.76547 weight (rate is 1 TOP to 0.58826 AUD)  
+        BestConversionFinder bcf = new BestConversionFinder(rates, currs);
+        System.out.println(bcf);
+        bcf.findBestConversion(1, 2);
+        //0.76129  better directly exchanging (TOP-AUD), as it gives 0.76547 weight (1 TOP to 0.58826 AUD)  
                                             
-        bcf2.findBestConversion(3, 1);
-    }   //better route than going [PHP-NZD, NZD-TOP], as it gives 5.11864 as the weight (which gives a rate of 1 PHP to 0.0287 TOP). 
+        bcf.findBestConversion(3, 1);
+        
+        //TEST CASE 2----------------
+        double[][] rates2 = new double[10][10];
+        HashMap<Integer, String> currs2 = new HashMap<>();
+        currs2.put(0, "AUD");
+        currs2.put(1, "EURO");
+        currs2.put(2, "GBP");
+        currs2.put(3, "NZD");
+        currs2.put(4, "USD");
+        
+        rates2[0][1] = 0.61; //AUD->EURO
+        rates2[0][3] = 1.08;  //AUD->NZD
+        rates2[0][4] = 0.72; //AUD->USD
+        
+        
+        rates2[1][0] = 1.63;// EURO->
+        rates2[1][2] = 0.58826; //EURO->
+        rates2[1][3] = 1.77; //EURO->NZD
+        rates2[1][4] = 1.18; //EURO->USD
+        
+        rates2[2][4] = 1.291; //GBP->USD
+        
+       rates2[3][0] = 0.92; //NZD->UAD
+       rates2[3][1] = 0.56; //NZD->EURO
+       rates2[3][4] = 0.66; //NZD->USD
+       
+       rates2[4][0] = 1.38;//USD->AUD
+       rates2[4][1] = 0.84;//USD->EURO
+       rates2[4][2] = 0.77;//USD->GBP
+       rates2[4][3] = 1.50;//USD->NZD
+       
+       BestConversionFinder bcf2 = new BestConversionFinder(rates2, currs2);
+       System.out.println(bcf2);
+       bcf2.findBestConversion(0, 2);
+       bcf2.findBestConversion(3, 1);
+    }   
     
 }
