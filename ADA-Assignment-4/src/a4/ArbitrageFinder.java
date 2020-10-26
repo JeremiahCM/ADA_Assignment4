@@ -222,7 +222,7 @@ public class ArbitrageFinder<E> {
         rates[GBP][CAD] = 1.71428;
         
       
-        rates[COP][MXN] = 179.687;
+        rates[COP][MXN] = 0.00548;
         rates[COP][USD] = 0.00026;
        
      
