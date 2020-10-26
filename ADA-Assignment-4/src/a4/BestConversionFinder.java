@@ -31,6 +31,7 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
     private static final int TOP = 9; //Tonga Pa'anga
 
     private double[][] rates;
+    public double[][] weights; //for ArbitrageFinder and Floyd-Warshall algorithm
     private HashMap<Integer,String> currencies; //for creating each Vertex (linked to the index of the initial n * n table)
     ArrayList<AdjacencyListEdge> path1 = new ArrayList<>();// path of best conversion rate for currency 1
     ArrayList<AdjacencyListEdge> path2 = new ArrayList<>(); // path of best conversion rate for currency 2
@@ -44,9 +45,32 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
         this.rates = rates;
         this.currencies = currencies;
         currencyVertex = new HashMap<>();
+        convertToWeights();
         createAdjacencyListGraph();
     }
     
+    private void convertToWeights()
+    {
+        weights = new double[rates.length][rates.length];
+        for(int i = 0; i < rates.length; i++)
+        {
+            for(int j = 0; j < rates.length; j++)
+            {
+                 if(rates[i][j] != 0)
+                {
+                   weights[i][j] = Math.log(1/rates[i][j]) / Math.log(2);
+                }
+                 else if(i == j)
+                {
+                    weights[i][j] = 0;
+                }
+                 else
+                 {
+                     weights[i][j] = Double.POSITIVE_INFINITY;
+                 }
+            }
+        }
+    }
     private void createAdjacencyListGraph()
     {
         //create vertices
@@ -313,14 +337,14 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
         rates[1][2] = 0.58826; //TOP->AUD
         
         rates[2][0] = 1.06690; //AUD->NZD
-        rates[2][1] = 1.59501; //AUD->TOP 
+        rates[2][1] = 1.59501; //AUD->TOP (make negative closed path by turning value to 3.34)
         
         rates[3][0] = 0.03079; //PHP->NZD
         
         
         BestConversionFinder bcf = new BestConversionFinder(rates, currs);
         System.out.println(bcf);
-        bcf.findBestConversion(1, 2);
+        bcf.findBestConversion(0, 3);
         //0.76129  better directly exchanging (TOP-AUD), as it gives 0.76547 weight (1 TOP to 0.58826 AUD)  
                                             
         bcf.findBestConversion(3, 1);

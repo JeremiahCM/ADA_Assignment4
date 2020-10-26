@@ -9,7 +9,7 @@ import java.util.HashMap;
    @author Andrew Ensor
 */
 
-public class AllPairsFloydWarshall
+public class FloydWarshall
 {
    DecimalFormat df = new DecimalFormat("#.#####"); //for rounding edge weights
    private static final double INFINITY = Double.POSITIVE_INFINITY;
@@ -18,7 +18,7 @@ public class AllPairsFloydWarshall
    private double[][][] d; //d[k][i][i] is weight of path from v_i to v_j
    private double[][][] p; //p[k][i][i] is penultimate vertex in path
    
-   public AllPairsFloydWarshall(double[][] weights)
+   public FloydWarshall(double[][] weights)
    {  n = weights.length;
       d = new double[n+1][][];
       d[0] = weights;
@@ -36,7 +36,7 @@ public class AllPairsFloydWarshall
       // build d[1],...,d[n] and p[1],...,p[n] dynamically
       for (int k=1; k<=n; k++)
       {  
-          d[k] = new double[n][n];
+         d[k] = new double[n][n];
          p[k] = new double[n][n];
          
          for (int i=0; i<n; i++)
@@ -94,7 +94,7 @@ public class AllPairsFloydWarshall
 //         {INFINITY, INFINITY, INFINITY, 0, 5, 2},
 //         {INFINITY, INFINITY, -2, INFINITY, 0, 7},
 //         {INFINITY, INFINITY, INFINITY, 1, INFINITY, 0}};
-//      AllPairsFloydWarshall apfw = new AllPairsFloydWarshall(weights);
+//      FloydWarshall apfw = new FloydWarshall(weights);
 //      System.out.println(apfw);
         double[][] rates = new double[10][10];
         HashMap<Integer, String> currs = new HashMap<>();
@@ -123,7 +123,7 @@ public class AllPairsFloydWarshall
         rates[3][0] = 5.02139; //PHP->NZD
         rates[3][3] = 0;
         
-        AllPairsFloydWarshall fw = new AllPairsFloydWarshall(rates);
+        FloydWarshall fw = new FloydWarshall(rates);
         System.out.println(fw.toString());
    }
 }
