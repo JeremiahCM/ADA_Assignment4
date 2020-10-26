@@ -60,17 +60,17 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
                  if(rates[i][j] != 0)
                 {
                    weights[i][j] = Math.log(1/rates[i][j]) / Math.log(2);
-                   System.out.println("WEIGHT FROM "+rates[i][j]+"  IS-> "+df.format(weights[i][j]));
+                  
                 }
                  else if(i == j)
                 {
                     weights[i][j] = 0;
-                    System.out.println("WEIGHT INDEX IS SAME1 "+rates[i][j]+"  IS-> "+df.format(weights[i][j]));
+                   
                 }
                  else
                  {                     
                      weights[i][j] = Double.POSITIVE_INFINITY;
-                     System.out.println("WEIGHT FROM "+rates[i][j]+"  IS-> "+df.format(weights[i][j])+"  "+"{"+i+","+j+")");
+
                  }
             }
         }
