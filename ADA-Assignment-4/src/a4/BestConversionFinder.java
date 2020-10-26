@@ -59,18 +59,18 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
             {
                  if(rates[i][j] != 0)
                 {
+                    
                    weights[i][j] = Math.log(1/rates[i][j]) / Math.log(2);
-                  
+                                    
                 }
                  else if(i == j)
-                {
-                    weights[i][j] = 0;
+                {                   
+                    weights[i][j] = 0;                                    
                    
                 }
                  else
                  {                     
                      weights[i][j] = Double.POSITIVE_INFINITY;
-
                  }
             }
         }

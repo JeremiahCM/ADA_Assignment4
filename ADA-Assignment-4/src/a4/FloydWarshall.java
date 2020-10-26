@@ -39,13 +39,20 @@ public class FloydWarshall
       // build d[1],...,d[n] and p[1],...,p[n] dynamically
       for (int k=1; k<=n; k++)
       {  
+          //PRINTOUTPUT
+          System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~K IS "+k);
          d[k] = new double[n][n];
          p[k] = new double[n][n];
          
          for (int i=0; i<n; i++)
          { 
             for (int j=0; j<n; j++)
-            {  double s;
+            {  
+                //PRINTOUTPUT
+                System.out.println("INDEX ["+currencies.get(i)+","+currencies.get(j)+"]");
+                double s;
+                //System.out.println("IF D["+currencies.get(i)+ ","+currencies.get(k-1)+"] IS NOT INFINITY AND "
+                //        +"D["+currencies.get(k-1)+","+currencies.get(j)+"] IS NOT INFINITY..");
                if (d[k-1][i][k-1]!=INFINITY&&d[k-1][k-1][j]!=INFINITY)
                {
                   s = d[k-1][i][k-1] + d[k-1][k-1][j];
@@ -63,20 +70,42 @@ public class FloydWarshall
                   p[k][i][j] = p[k-1][k-1][j];
                }
                
+               //PRINTOUTPUT
+                System.out.println("S IS : "+s);
+               
             }
          }
       }
    }
    
-   public double[][][] getPen()
+   public double[][][] getPTable()
    {
        return p;
+   }
+   public double[][][] getDistances()
+   {
+       return d;
    }
    
    public void print()
    {
-       System.out.println(d[3][3][3]);
-       System.out.println(currencies.get((int)p[3][3][3]));
+//       System.out.println(d[3][0][0]);
+//       System.out.println(currencies.get((int)p[3][0][0]));
+//       System.out.println(currencies.get((int)p[3][2][2]));
+//       System.out.println(currencies.get((int)p[3][1][1]));
+//       
+//       System.out.println(d[3][1][1]);
+       
+//       System.out.println(d[4][3][3]);
+//       System.out.println(currencies.get((int)p[4][3][3]));
+//       System.out.println(currencies.get((int)p[4][0][0]));
+//       System.out.println(currencies.get((int)p[4][2][2]));
+//       System.out.println(currencies.get((int)p[4][1][1]));
+//       System.out.println("----------------------");
+//       //k = 2, TOP-AUD LAST EDGE BACKTRACKED. (PHP-NZD, NZD-AUD, AUD,TOP, TOP-AUD)
+//       System.out.println(currencies.get((int)p[3][2][2])); //aussie
+//       System.out.println(currencies.get((int)p[3][1][1])); //top
+//       System.out.println(currencies.get((int)p[3][0][0])); //nzd
    }
   
    protected void getLastVertex(double v)
@@ -86,6 +115,7 @@ public class FloydWarshall
    // returns a string representation of matrix d[n] and p[n]
    public String toString()
    {  String output = "Shortest lengths\n";
+   
       for (int i=0; i<n; i++)
       {  
           for (int j=0; j<n; j++)
