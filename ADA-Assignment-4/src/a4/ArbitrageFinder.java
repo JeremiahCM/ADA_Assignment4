@@ -13,7 +13,7 @@ import java.util.Set;
 
 /**
  *
- * @author bernie
+ * @author Bernadette Cruz 17985971
  */
 public class ArbitrageFinder<E> {
            private static final int NZD = 0;    
@@ -158,7 +158,7 @@ public class ArbitrageFinder<E> {
         
         
        ArbitrageFinder af = new ArbitrageFinder(rates2, currs);
-       //af.findArbitrage();
+       af.findArbitrage();
        
        //TEST CASE 2--------------------------
         HashMap<Integer, String> currencies = new HashMap<>();
