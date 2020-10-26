@@ -151,7 +151,7 @@ public class ArbitrageFinder<E> {
         rates2[1][2] = 3.54; //TOP->AUD
         
         rates2[2][0] = 1.06690; //AUD->NZD
-        rates2[2][1] = 1.59501; //AUD->TOP //(change to 1.59501 for no negative weight closed path) 
+        rates2[2][1] = 1.59501; //AUD->TOP //
         
         rates2[3][0] = 0.03079; //PHP->NZD
         
