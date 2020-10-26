@@ -13,13 +13,15 @@ public class FloydWarshall
 {
    DecimalFormat df = new DecimalFormat("#.#####"); //for rounding edge weights
    private static final double INFINITY = Double.POSITIVE_INFINITY;
-   private static final double NO_VERTEX = Double.NEGATIVE_INFINITY;
+   private static final double NO_VERTEX = -1;
    private int n; // number of vertices in the graph
    private double[][][] d; //d[k][i][i] is weight of path from v_i to v_j
    private double[][][] p; //p[k][i][i] is penultimate vertex in path
+   private HashMap <Integer,String> currencies;
    
-   public FloydWarshall(double[][] weights)
-   {  n = weights.length;
+   public FloydWarshall(double[][] weights, HashMap <Integer,String> currencies)
+   {  this.currencies = currencies;
+       n = weights.length;
       d = new double[n+1][][];
       d[0] = weights;
       // create p[0]
@@ -27,10 +29,11 @@ public class FloydWarshall
       p[0] = new double[n][n];
       for (int i=0; i<n; i++)
       {  for (int j=0; j<n; j++)
-         {  if (weights[i][j]<INFINITY)
-               p[0][i][j] = i;
+         {  
+             if (weights[i][j]<INFINITY)
+               p[0][i][j] = i; //assign penultimate vertex in path to be i, if there is an edge between i and j.
             else
-               p[0][i][j] = NO_VERTEX;
+               p[0][i][j] = NO_VERTEX; //otherwise no vertex between them.
          }
       }
       // build d[1],...,d[n] and p[1],...,p[n] dynamically
@@ -44,9 +47,13 @@ public class FloydWarshall
             for (int j=0; j<n; j++)
             {  double s;
                if (d[k-1][i][k-1]!=INFINITY&&d[k-1][k-1][j]!=INFINITY)
+               {
                   s = d[k-1][i][k-1] + d[k-1][k-1][j];
+               }
                else
+               {
                   s = INFINITY;
+               }
                if (d[k-1][i][j] <= s)
                {  d[k][i][j] = d[k-1][i][j];
                   p[k][i][j] = p[k-1][i][j];
@@ -55,28 +62,47 @@ public class FloydWarshall
                {  d[k][i][j] = s;
                   p[k][i][j] = p[k-1][k-1][j];
                }
+               
             }
          }
       }
    }
    
+   public double[][][] getPen()
+   {
+       return p;
+   }
+   
+   public void print()
+   {
+       System.out.println(d[3][3][3]);
+       System.out.println(currencies.get((int)p[3][3][3]));
+   }
+  
+   protected void getLastVertex(double v)
+   {
+       System.out.println("LAST VERTEX IS "+v);
+   }
    // returns a string representation of matrix d[n] and p[n]
    public String toString()
    {  String output = "Shortest lengths\n";
       for (int i=0; i<n; i++)
-      {  for (int j=0; j<n; j++)
-         {  if (d[n][i][j] != INFINITY)
-               output += ("\t" + df.format(d[n][i][j]));
+      {  
+          for (int j=0; j<n; j++)
+         {  
+             if (d[n][i][j] != INFINITY)
+               output += ("\t" + d[n][i][j]);
             else
                output += "\tinfin";
          }
          output += "\n";
       }
-      output += "Previous vertices on shortest paths\n";
+      output += "Previous vertices on shortest paths\n"; //using the most vertices possible.
       for (int i=0; i<n; i++)
       {  for (int j=0; j<n; j++)
-         {  if (p[n][i][j] != NO_VERTEX)
-               output += ("\t" + df.format(p[n][i][j]));
+         {  
+             if (p[n][i][j] != NO_VERTEX)
+               output += ("\t" + df.format(p[n][i][j])); //print where k = 4;
             else
                output += "\tnull";
          }
@@ -95,13 +121,14 @@ public class FloydWarshall
 //         {INFINITY, INFINITY, -2, INFINITY, 0, 7},
 //         {INFINITY, INFINITY, INFINITY, 1, INFINITY, 0}};
 //      FloydWarshall apfw = new FloydWarshall(weights);
-//      System.out.println(apfw);
-        double[][] rates = new double[10][10];
+//      System.out.println(apfw);   
+ 
         HashMap<Integer, String> currs = new HashMap<>();
         currs.put(0, "NZD");
         currs.put(1, "TOP");
         currs.put(2, "AUD");
         currs.put(3, "PHP");
+        double[][] rates = new double[currs.size()][currs.size()];
         
         rates[0][0] = 0;
         rates[0][1] = -0.57876; // NZD->TOP
@@ -110,7 +137,7 @@ public class FloydWarshall
         
         rates[1][0] = 0.66404;// TOP->NZD
         rates[1][1] = 0;
-        rates[1][2] = 0.76547; //TOP->AUD
+        rates[1][2] = -1.82374936; //TOP->AUD
         rates[1][3] = INFINITY;
         
         rates[2][0] = -0.09342; //AUD->NZD
@@ -123,7 +150,8 @@ public class FloydWarshall
         rates[3][0] = 5.02139; //PHP->NZD
         rates[3][3] = 0;
         
-        FloydWarshall fw = new FloydWarshall(rates);
+        FloydWarshall fw = new FloydWarshall(rates, currs);
         System.out.println(fw.toString());
+        fw.print();
    }
 }

@@ -33,6 +33,7 @@ public class ArbitrageFinder {
         else //if arbitrage is found.
         {
             FloydWarshall fw = new FloydWarshall(bcf.weights);
+            System.out.println(bcf);
             System.out.println(fw);
         }
         
@@ -41,12 +42,12 @@ public class ArbitrageFinder {
     
     public static void main(String[] args) {
         //TEST CASE 1-----------------------------------
-        double[][] rates = new double[10][10];
         HashMap<Integer, String> currs = new HashMap<>();
         currs.put(0, "NZD");
         currs.put(1, "TOP");
         currs.put(2, "AUD");
         currs.put(3, "PHP");
+        double[][] rates = new double[currs.size()][currs.size()];
         
         rates[0][1] = 1.49356; // NZD->TOP
         rates[0][2] = 0.93481; // NZD->AUD
@@ -56,7 +57,7 @@ public class ArbitrageFinder {
         rates[1][2] = 0.58826; //TOP->AUD
         
         rates[2][0] = 1.06690; //AUD->NZD
-        rates[2][1] = 3.54; //AUD->TOP (change to 1.59501 for no negative weight closed path)
+        rates[2][1] = 3.54; //AUD->TOP (change to 1.59501 for no negative weight closed path) 
         
         rates[3][0] = 0.03079; //PHP->NZD
         

@@ -52,6 +52,7 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
     private void convertToWeights()
     {
         weights = new double[rates.length][rates.length];
+
         for(int i = 0; i < rates.length; i++)
         {
             for(int j = 0; j < rates.length; j++)
@@ -59,14 +60,17 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
                  if(rates[i][j] != 0)
                 {
                    weights[i][j] = Math.log(1/rates[i][j]) / Math.log(2);
+                   System.out.println("WEIGHT FROM "+rates[i][j]+"  IS-> "+df.format(weights[i][j]));
                 }
                  else if(i == j)
                 {
                     weights[i][j] = 0;
+                    System.out.println("WEIGHT INDEX IS SAME1 "+rates[i][j]+"  IS-> "+df.format(weights[i][j]));
                 }
                  else
-                 {
+                 {                     
                      weights[i][j] = Double.POSITIVE_INFINITY;
+                     System.out.println("WEIGHT FROM "+rates[i][j]+"  IS-> "+df.format(weights[i][j])+"  "+"{"+i+","+j+")");
                  }
             }
         }
@@ -350,14 +354,14 @@ public class BestConversionFinder<E> extends AdjacencyListGraph<String>{
         bcf.findBestConversion(3, 1);
         
         //TEST CASE 2----------------
-        double[][] rates2 = new double[10][10];
+        
         HashMap<Integer, String> currs2 = new HashMap<>();
         currs2.put(0, "AUD");
         currs2.put(1, "EURO");
         currs2.put(2, "GBP");
         currs2.put(3, "NZD");
         currs2.put(4, "USD");
-        
+        double[][] rates2 = new double[currs2.size()][currs2.size()];
         rates2[0][1] = 0.61; //AUD->EURO
         rates2[0][3] = 1.08;  //AUD->NZD
         rates2[0][4] = 0.72; //AUD->USD
