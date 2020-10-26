@@ -39,8 +39,7 @@ public class FloydWarshall
       // build d[1],...,d[n] and p[1],...,p[n] dynamically
       for (int k=1; k<=n; k++)
       {  
-          //PRINTOUTPUT
-          System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~K IS "+k);
+        
          d[k] = new double[n][n];
          p[k] = new double[n][n];
          
@@ -49,7 +48,7 @@ public class FloydWarshall
             for (int j=0; j<n; j++)
             {  
                 //PRINTOUTPUT
-                System.out.println("INDEX ["+currencies.get(i)+","+currencies.get(j)+"]");
+                //System.out.println("INDEX ["+currencies.get(i)+","+currencies.get(j)+"]");
                 double s;
                 //System.out.println("IF D["+currencies.get(i)+ ","+currencies.get(k-1)+"] IS NOT INFINITY AND "
                 //        +"D["+currencies.get(k-1)+","+currencies.get(j)+"] IS NOT INFINITY..");
@@ -71,7 +70,7 @@ public class FloydWarshall
                }
                
                //PRINTOUTPUT
-                System.out.println("S IS : "+s);
+              //  System.out.println("S IS : "+s);
                
             }
          }
